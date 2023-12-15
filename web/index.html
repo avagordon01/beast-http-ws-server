@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>websocket -> bluetooth/usb proxy</title>
+        <style>
+pre {
+    width: 600px;
+    height: 400px;
+    white-space: normal;
+    overflow: auto;
+    border: solid 1px #ccc;
+}
+        </style>
+    </head>
+    <body>
+        <pre id="messages"></pre>
+        <div>
+            <input id="sendMessage" size="74" autofocus>
+            <button id="send">send</button>
+        </div>
+        <script>
+            var ws = null;
+            function showMessage(msg) {
+                messages.innerText += msg + "\n";
+                messages.scrollTop = messages.scrollHeight - messages.clientHeight;
+            };
+            window.onload = function() {
+                ws = new WebSocket("ws://127.0.0.1:8080");
+                ws.onopen = function(ev) {
+                    showMessage("[connection opened]");
+                };
+                ws.onclose = function(ev) {
+                    showMessage("[connection closed]");
+                };
+                ws.onmessage = function(ev) {
+                    showMessage(ev.data);
+                };
+                ws.onerror = function(ev) {
+                    showMessage("[error]");
+                    console.log(ev);
+                };
+            };
+            send.onclick = function() {
+                ws.send(sendMessage.value);
+                sendMessage.value = "";
+            };
+            sendMessage.onkeyup = function(ev) {
+                ev.preventDefault();
+                if (ev.keyCode === 13) {
+                    send.click();
+                }
+            }
+        </script>
+    </body>
+</html>
